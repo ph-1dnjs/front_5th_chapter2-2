@@ -11,7 +11,7 @@ import {
 import { CartPage } from "../../refactoring/components/CartPage";
 import { AdminPage } from "../../refactoring/components/AdminPage";
 import { CartItem, Coupon, Product } from "../../types";
-import { useCart, useCoupons, useProducts } from "../../refactoring/hooks";
+import { useCart, useCoupon, useProduct } from "../../refactoring/hooks";
 import * as cartUtils from "../../refactoring/models/cart";
 
 const mockProducts: Product[] = [
@@ -270,18 +270,18 @@ describe("basic > ", () => {
     });
   });
 
-  describe("useProducts > ", () => {
+  describe("useProduct > ", () => {
     const initialProducts: Product[] = [
       { id: "1", name: "Product 1", price: 100, stock: 10, discounts: [] },
     ];
 
     test("특정 제품으로 초기화할 수 있다.", () => {
-      const { result } = renderHook(() => useProducts(initialProducts));
+      const { result } = renderHook(() => useProduct(initialProducts));
       expect(result.current.products).toEqual(initialProducts);
     });
 
     test("제품을 업데이트할 수 있다.", () => {
-      const { result } = renderHook(() => useProducts(initialProducts));
+      const { result } = renderHook(() => useProduct(initialProducts));
       const updatedProduct = { ...initialProducts[0], name: "Updated Product" };
 
       act(() => {
@@ -298,7 +298,7 @@ describe("basic > ", () => {
     });
 
     test("새로운 제품을 추가할 수 있다.", () => {
-      const { result } = renderHook(() => useProducts(initialProducts));
+      const { result } = renderHook(() => useProduct(initialProducts));
       const newProduct: Product = {
         id: "2",
         name: "New Product",
@@ -316,14 +316,14 @@ describe("basic > ", () => {
     });
   });
 
-  describe("useCoupons > ", () => {
+  describe("useCoupon > ", () => {
     test("쿠폰을 초기화할 수 있다.", () => {
-      const { result } = renderHook(() => useCoupons(mockCoupons));
+      const { result } = renderHook(() => useCoupon(mockCoupons));
       expect(result.current.coupons).toEqual(mockCoupons);
     });
 
     test("쿠폰을 추가할 수 있다", () => {
-      const { result } = renderHook(() => useCoupons(mockCoupons));
+      const { result } = renderHook(() => useCoupon(mockCoupons));
       const newCoupon: Coupon = {
         name: "New Coupon",
         code: "NEWCODE",
