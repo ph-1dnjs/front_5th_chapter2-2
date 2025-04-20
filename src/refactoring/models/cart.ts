@@ -36,11 +36,9 @@ export const calculateCartTotal = (
 
   cart.forEach((item) => {
     const itemTotal = calculateItemTotal(item);
-    const maxDiscount = getMaxApplicableDiscount(item);
-    const discountedItemTotal = itemTotal * (1 - maxDiscount / 100);
 
     totalBeforeDiscount += item.product.price * item.quantity;
-    totalAfterDiscount += discountedItemTotal;
+    totalAfterDiscount += itemTotal;
   });
 
   let totalDiscount = totalBeforeDiscount - totalAfterDiscount;
