@@ -1,9 +1,17 @@
 import { useState } from "react";
 import { describe, expect, test } from "vitest";
-import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  renderHook,
+  screen,
+  within,
+} from "@testing-library/react";
 import { CartPage } from "../../refactoring/pages/CartPage";
 import { AdminPage } from "../../refactoring/pages/AdminPage";
 import { Coupon, Product } from "../../types";
+import useLocalStorage from "../../refactoring/hooks/useLocalStorage";
 
 const mockProducts: Product[] = [
   {
@@ -266,8 +274,46 @@ describe("advanced > ", () => {
       expect(true).toBe(false);
     });
 
-    test("새로운 hook 함수를 만든 후에 테스트 코드를 작성해서 실행해보세요", () => {
-      expect(true).toBe(false);
+    // test("새로운 hook 함수를 만든 후에 테스트 코드를 작성해서 실행해보세요", () => {
+    //   expect(true).toBe(false);
+    // });
+  });
+
+  describe("useLocalStorage", () => {
+    const KEY = "test-key";
+
+    test("localStorage에 값이 없을 때 초기값을 반환하는지 테스트합니다.", () => {
+      const { result } = renderHook(() => useLocalStorage(KEY, "초기값"));
+
+      expect(result.current[0]).toBe("초기값");
+      expect(localStorage.getItem(KEY)).toBe(JSON.stringify("초기값"));
+    });
+
+    test("localStorage에 값이 있을 경우 해당 값을 불러오는지 테스트합니다.", () => {
+      localStorage.setItem(KEY, JSON.stringify("저장된값"));
+
+      const { result } = renderHook(() => useLocalStorage(KEY, "무시될값"));
+
+      expect(result.current[0]).toBe("저장된값");
+    });
+
+    test("상태가 변경되면 localStorage에도 반영되는지 테스트합니다.", () => {
+      const { result } = renderHook(() => useLocalStorage(KEY, "초기값"));
+
+      act(() => {
+        result.current[1]("변경된값");
+      });
+
+      expect(result.current[0]).toBe("변경된값");
+      expect(localStorage.getItem(KEY)).toBe(JSON.stringify("변경된값"));
+    });
+
+    test("잘못된 JSON이 localStorage에 있을 경우 fallback으로 초기값을 사용하는지 테스트합니다.", () => {
+      localStorage.setItem(KEY, "JSON이 아닙니다.");
+
+      const { result } = renderHook(() => useLocalStorage(KEY, "기본값"));
+
+      expect(result.current[0]).toBe("기본값");
     });
   });
 });
