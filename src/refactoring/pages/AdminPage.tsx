@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { Coupon, Discount, Product } from "../../types.ts";
-import { CouponManager, AdminProductList } from "../components/index.ts";
-import NewProductSection from "../components/product/NewProductSelection.tsx";
+import {
+  CouponManager,
+  AdminProductList,
+  NewProductSection,
+} from "../components/index.ts";
 
 interface Props {
   products: Product[];
