@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import {
   act,
   fireEvent,
@@ -13,6 +13,14 @@ import { AdminPage } from "../../refactoring/pages/AdminPage";
 import { CartItem, Coupon, Product } from "../../types";
 import { useCart, useCoupon, useProduct } from "../../refactoring/hooks";
 import * as cartUtils from "../../refactoring/models/cart";
+
+beforeEach(() => {
+  localStorage.clear();
+});
+
+afterEach(() => {
+  localStorage.clear();
+});
 
 const mockProducts: Product[] = [
   {
