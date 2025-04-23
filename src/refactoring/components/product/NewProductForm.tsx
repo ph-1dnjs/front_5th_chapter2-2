@@ -1,17 +1,12 @@
-import React from "react";
 import { Product } from "../../../types";
 
-interface NewProductFormProps {
+interface IProps {
   newProduct: Omit<Product, "id">;
   onChange: (product: Omit<Product, "id">) => void;
   onAdd: () => void;
 }
 
-const NewProductForm: React.FC<NewProductFormProps> = ({
-  newProduct,
-  onChange,
-  onAdd,
-}) => {
+const NewProductForm = ({ newProduct, onChange, onAdd }: IProps) => {
   return (
     <div className="bg-white p-4 rounded shadow mb-4">
       <h3 className="text-xl font-semibold mb-2">새 상품 추가</h3>

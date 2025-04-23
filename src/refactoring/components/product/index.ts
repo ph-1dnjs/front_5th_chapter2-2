@@ -1,4 +1,4 @@
 export { default as ProductCard } from "./ProductCard";
 export { default as ProductList } from "./ProductList";
-export { default as NewProductForm } from "./NewProductForm";
+export { default as NewProductSelection } from "./NewProductSelection";
 export { default as AdminProductList } from "./AdminProductList";

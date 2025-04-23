@@ -1,7 +1,7 @@
 import { Discount, Product } from "../../../types";
 import ProductCard from "./ProductCard";
 
-interface ProductListProps {
+interface IProps {
   products: Product[];
   getRemainingStock: (product: Product) => number;
   getMaxDiscount: (discounts: Discount[]) => number;
@@ -13,7 +13,7 @@ const ProductList = ({
   getRemainingStock,
   getMaxDiscount,
   addToCart,
-}: ProductListProps) => {
+}: IProps) => {
   return (
     <div>
       <h2 className="text-2xl font-semibold mb-4">상품 목록</h2>

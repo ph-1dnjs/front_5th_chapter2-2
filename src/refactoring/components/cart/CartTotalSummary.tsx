@@ -1,12 +1,14 @@
+interface IProps {
+  totalBeforeDiscount: number;
+  totalDiscount: number;
+  totalAfterDiscount: number;
+}
+
 const CartTotalSummary = ({
   totalBeforeDiscount,
   totalDiscount,
   totalAfterDiscount,
-}: {
-  totalBeforeDiscount: number;
-  totalDiscount: number;
-  totalAfterDiscount: number;
-}) => {
+}: IProps) => {
   return (
     <div className="mt-6 bg-white p-4 rounded shadow">
       <h2 className="text-2xl font-semibold mb-2">주문 요약</h2>

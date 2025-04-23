@@ -1,6 +1,6 @@
 import { Product } from "../../../types";
 
-interface Props {
+interface IProps {
   products: Product[];
   openProductIds: Set<string>;
   editingProduct: Product | null;
@@ -30,7 +30,7 @@ const AdminProductList = ({
   handleRemoveDiscount,
   handleEditComplete,
   setNewDiscount,
-}: Props) => {
+}: IProps) => {
   return (
     <div className="space-y-2">
       {products.map((product, index) => (
