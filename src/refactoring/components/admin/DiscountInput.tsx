@@ -1,16 +1,12 @@
 import { Discount } from "../../../types";
 
-interface DiscountInputProps {
+interface IProps {
   newDiscount: Discount;
   onChange: (discount: Discount) => void;
   onAdd: () => void;
 }
 
-export const DiscountInput = ({
-  newDiscount,
-  onChange,
-  onAdd,
-}: DiscountInputProps) => {
+const DiscountInput = ({ newDiscount, onChange, onAdd }: IProps) => {
   return (
     <div className="flex space-x-2">
       <input
@@ -46,3 +42,5 @@ export const DiscountInput = ({
     </div>
   );
 };
+
+export default DiscountInput;

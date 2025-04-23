@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Coupon, Discount, Product } from "../../types.ts";
 import {
   CouponManager,
-  AdminProductList,
+  ProductContainer,
   NewProductSection,
 } from "../components/index.ts";
 
@@ -153,7 +153,7 @@ export const AdminPage = ({
             onChange={setNewProduct}
             onAdd={handleAddNewProduct}
           />
-          <AdminProductList
+          <ProductContainer
             products={products}
             openProductIds={openProductIds}
             editingProduct={editingProduct}
