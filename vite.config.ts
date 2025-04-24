@@ -1,16 +1,21 @@
-import { defineConfig as defineTestConfig, mergeConfig } from 'vitest/config';
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react-swc';
+import { defineConfig } from "vitest/config";
+import react from "@vitejs/plugin-react";
+import path from "path";
 
-export default mergeConfig(
-  defineConfig({
-    plugins: [react()],
-  }),
-  defineTestConfig({
-    test: {
-      globals: true,
-      environment: 'jsdom',
-      setupFiles: './src/setupTests.ts'
+export default defineConfig({
+  base: "",
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: "src/setupTests.js",
+  },
+  plugins: [react()],
+  build: {
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, "index.origin.html"),
+        advanced: path.resolve(__dirname, "index.refactoring.html"),
+      },
     },
-  })
-)
+  },
+});
