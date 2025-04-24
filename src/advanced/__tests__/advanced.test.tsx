@@ -13,6 +13,7 @@ import { AdminPage } from "../../refactoring/pages/AdminPage";
 import { CartItem, Coupon, Product } from "../../types";
 import useLocalStorage from "../../refactoring/hooks/useLocalStorage";
 import { useDiscountCalculator } from "../../refactoring/hooks";
+import { validateProductData } from "../../refactoring/models/validation";
 
 const mockProducts: Product[] = [
   {
@@ -282,63 +283,169 @@ describe("advanced > ", () => {
     });
   });
 
-  describe("useDiscountCalculator", () => {
-    test("상품 자체 할인이 없는 경우 계산이 정확하게 출력됩니다.", () => {
-      const { result } = renderHook(() =>
-        useDiscountCalculator(mockCarts, null)
-      );
+  describe("커스텀 훅", () => {
+    describe("useDiscountCalculator", () => {
+      test("상품 자체 할인이 없는 경우 계산이 정확하게 출력됩니다.", () => {
+        const { result } = renderHook(() =>
+          useDiscountCalculator(mockCarts, null)
+        );
 
-      expect(result.current.totalBeforeDiscount).toBe(50000);
-      expect(result.current.totalAfterDiscount).toBe(50000);
-      expect(result.current.totalDiscount).toBe(0);
+        expect(result.current.totalBeforeDiscount).toBe(50000);
+        expect(result.current.totalAfterDiscount).toBe(50000);
+        expect(result.current.totalDiscount).toBe(0);
+      });
+
+      test("5000원 할인 쿠폰이 제대로 적용됩니다.", () => {
+        const { result } = renderHook(() =>
+          useDiscountCalculator(mockCarts, mockCoupons[0])
+        );
+
+        expect(result.current.totalBeforeDiscount).toBe(50000);
+        expect(result.current.totalAfterDiscount).toBe(45000);
+        expect(result.current.totalDiscount).toBe(5000);
+      });
     });
 
-    test("5000원 할인 쿠폰이 제대로 적용됩니다.", () => {
-      const { result } = renderHook(() =>
-        useDiscountCalculator(mockCarts, mockCoupons[0])
-      );
+    describe("useLocalStorage", () => {
+      const KEY = "test-key";
 
-      expect(result.current.totalBeforeDiscount).toBe(50000);
-      expect(result.current.totalAfterDiscount).toBe(45000);
-      expect(result.current.totalDiscount).toBe(5000);
+      test("localStorage에 값이 없을 때 초기값을 반환하는지 테스트합니다.", () => {
+        const { result } = renderHook(() => useLocalStorage(KEY, "초기값"));
+
+        expect(result.current[0]).toBe("초기값");
+        expect(localStorage.getItem(KEY)).toBe(JSON.stringify("초기값"));
+      });
+
+      test("localStorage에 값이 있을 경우 해당 값을 불러오는지 테스트합니다.", () => {
+        localStorage.setItem(KEY, JSON.stringify("저장된값"));
+
+        const { result } = renderHook(() => useLocalStorage(KEY, "무시될값"));
+
+        expect(result.current[0]).toBe("저장된값");
+      });
+
+      test("상태가 변경되면 localStorage에도 반영되는지 테스트합니다.", () => {
+        const { result } = renderHook(() => useLocalStorage(KEY, "초기값"));
+
+        act(() => {
+          result.current[1]("변경된값");
+        });
+
+        expect(result.current[0]).toBe("변경된값");
+        expect(localStorage.getItem(KEY)).toBe(JSON.stringify("변경된값"));
+      });
+
+      test("잘못된 JSON이 localStorage에 있을 경우 fallback으로 초기값을 사용하는지 테스트합니다.", () => {
+        localStorage.setItem(KEY, "JSON이 아닙니다.");
+
+        const { result } = renderHook(() => useLocalStorage(KEY, "기본값"));
+
+        expect(result.current[0]).toBe("기본값");
+      });
     });
   });
 
-  describe("useLocalStorage", () => {
-    const KEY = "test-key";
+  describe("유틸 함수", () => {
+    describe("validateProductData", () => {
+      test("상품 이름이 비어있으면 오류가 발생해야 한다", () => {
+        const product: Product = {
+          id: "1",
+          name: "",
+          price: 100,
+          stock: 10,
+          discounts: [],
+        };
 
-    test("localStorage에 값이 없을 때 초기값을 반환하는지 테스트합니다.", () => {
-      const { result } = renderHook(() => useLocalStorage(KEY, "초기값"));
-
-      expect(result.current[0]).toBe("초기값");
-      expect(localStorage.getItem(KEY)).toBe(JSON.stringify("초기값"));
-    });
-
-    test("localStorage에 값이 있을 경우 해당 값을 불러오는지 테스트합니다.", () => {
-      localStorage.setItem(KEY, JSON.stringify("저장된값"));
-
-      const { result } = renderHook(() => useLocalStorage(KEY, "무시될값"));
-
-      expect(result.current[0]).toBe("저장된값");
-    });
-
-    test("상태가 변경되면 localStorage에도 반영되는지 테스트합니다.", () => {
-      const { result } = renderHook(() => useLocalStorage(KEY, "초기값"));
-
-      act(() => {
-        result.current[1]("변경된값");
+        const errors = validateProductData(product);
+        expect(errors).toContain("상품 이름은 필수입니다.");
       });
 
-      expect(result.current[0]).toBe("변경된값");
-      expect(localStorage.getItem(KEY)).toBe(JSON.stringify("변경된값"));
-    });
+      test("상품 가격이 0 이하일 경우 오류가 발생해야 한다", () => {
+        const product1: Product = {
+          id: "2",
+          name: "상품1",
+          price: 0,
+          stock: 10,
+          discounts: [],
+        };
+        const product2: Product = {
+          id: "3",
+          name: "상품2",
+          price: -100,
+          stock: 10,
+          discounts: [],
+        };
 
-    test("잘못된 JSON이 localStorage에 있을 경우 fallback으로 초기값을 사용하는지 테스트합니다.", () => {
-      localStorage.setItem(KEY, "JSON이 아닙니다.");
+        const errors1 = validateProductData(product1);
+        const errors2 = validateProductData(product2);
 
-      const { result } = renderHook(() => useLocalStorage(KEY, "기본값"));
+        expect(errors1).toContain("상품 가격은 0보다 커야 합니다.");
+        expect(errors2).toContain("상품 가격은 0보다 커야 합니다.");
+      });
 
-      expect(result.current[0]).toBe("기본값");
+      test("상품 재고가 음수일 경우 오류가 발생해야 한다", () => {
+        const product: Product = {
+          id: "4",
+          name: "상품4",
+          price: 100,
+          stock: -5,
+          discounts: [],
+        };
+
+        const errors = validateProductData(product);
+        expect(errors).toContain("상품 재고는 음수일 수 없습니다.");
+      });
+
+      test("할인 수량이 0 이하일 경우 오류가 발생해야 한다", () => {
+        const product: Product = {
+          id: "5",
+          name: "상품5",
+          price: 100,
+          stock: 10,
+          discounts: [
+            { quantity: 0, rate: 0.1 },
+            { quantity: -5, rate: 0.2 },
+          ],
+        };
+
+        const errors = validateProductData(product);
+        expect(errors).toContain("할인 1: 할인 수량은 1 이상이어야 합니다.");
+        expect(errors).toContain("할인 2: 할인 수량은 1 이상이어야 합니다.");
+      });
+
+      test("할인율이 0 미만 또는 1 초과일 경우 오류가 발생해야 한다", () => {
+        const product: Product = {
+          id: "6",
+          name: "상품6",
+          price: 100,
+          stock: 10,
+          discounts: [
+            { quantity: 5, rate: -0.1 },
+            { quantity: 5, rate: 1.5 },
+          ],
+        };
+
+        const errors = validateProductData(product);
+        expect(errors).toContain(
+          "할인 1: 할인율은 0 이상 1 이하이어야 합니다."
+        );
+        expect(errors).toContain(
+          "할인 2: 할인율은 0 이상 1 이하이어야 합니다."
+        );
+      });
+
+      test("모든 속성이 유효한 상품일 경우 오류가 없어야 한다", () => {
+        const product: Product = {
+          id: "7",
+          name: "상품7",
+          price: 100,
+          stock: 10,
+          discounts: [{ quantity: 5, rate: 0.1 }],
+        };
+
+        const errors = validateProductData(product);
+        expect(errors).toHaveLength(0);
+      });
     });
   });
 });

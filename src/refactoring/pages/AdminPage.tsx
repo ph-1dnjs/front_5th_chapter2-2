@@ -5,6 +5,7 @@ import {
   ProductContainer,
   NewProductSection,
 } from "../components/index.ts";
+import { validateProductData } from "../models/validation.ts";
 
 interface Props {
   products: Product[];
@@ -128,7 +129,15 @@ export const AdminPage = ({
 
   const handleAddNewProduct = () => {
     const productWithId = { ...newProduct, id: Date.now().toString() };
+    const errors = validateProductData(productWithId);
+
+    if (errors.length > 0) {
+      alert(`상품 추가 오류: errors`);
+      return;
+    }
+
     onProductAdd(productWithId);
+
     setNewProduct({
       name: "",
       price: 0,
