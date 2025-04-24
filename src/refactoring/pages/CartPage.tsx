@@ -5,7 +5,7 @@ import {
   CouponContainer,
   ProductList,
 } from "../components";
-import { useCart } from "../hooks/index.ts";
+import { useCart, useDiscountCalculator } from "../hooks/index.ts";
 
 interface Props {
   products: Product[];
@@ -19,7 +19,6 @@ export const CartPage = ({ products, coupons }: Props) => {
     removeFromCart,
     updateQuantity,
     applyCoupon,
-    calculateTotal,
     selectedCoupon,
   } = useCart();
 
@@ -33,7 +32,7 @@ export const CartPage = ({ products, coupons }: Props) => {
   };
 
   const { totalBeforeDiscount, totalAfterDiscount, totalDiscount } =
-    calculateTotal();
+    useDiscountCalculator(cart, selectedCoupon);
 
   const getAppliedDiscount = (item: CartItem) => {
     const { discounts } = item.product;

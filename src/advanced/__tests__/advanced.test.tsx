@@ -10,8 +10,9 @@ import {
 } from "@testing-library/react";
 import { CartPage } from "../../refactoring/pages/CartPage";
 import { AdminPage } from "../../refactoring/pages/AdminPage";
-import { Coupon, Product } from "../../types";
+import { CartItem, Coupon, Product } from "../../types";
 import useLocalStorage from "../../refactoring/hooks/useLocalStorage";
+import { useDiscountCalculator } from "../../refactoring/hooks";
 
 const mockProducts: Product[] = [
   {
@@ -48,6 +49,18 @@ const mockCoupons: Coupon[] = [
     code: "PERCENT10",
     discountType: "percentage",
     discountValue: 10,
+  },
+];
+const mockCarts: CartItem[] = [
+  {
+    product: {
+      id: "p1",
+      name: "상품1",
+      price: 10000,
+      stock: 20,
+      discounts: [{ quantity: 10, rate: 0.1 }],
+    },
+    quantity: 5,
   },
 ];
 
@@ -269,14 +282,26 @@ describe("advanced > ", () => {
     });
   });
 
-  describe("자유롭게 작성해보세요.", () => {
-    test("새로운 유틸 함수를 만든 후에 테스트 코드를 작성해서 실행해보세요", () => {
-      expect(true).toBe(false);
+  describe("useDiscountCalculator", () => {
+    test("상품 자체 할인이 없는 경우 계산이 정확하게 출력됩니다.", () => {
+      const { result } = renderHook(() =>
+        useDiscountCalculator(mockCarts, null)
+      );
+
+      expect(result.current.totalBeforeDiscount).toBe(50000);
+      expect(result.current.totalAfterDiscount).toBe(50000);
+      expect(result.current.totalDiscount).toBe(0);
     });
 
-    // test("새로운 hook 함수를 만든 후에 테스트 코드를 작성해서 실행해보세요", () => {
-    //   expect(true).toBe(false);
-    // });
+    test("5000원 할인 쿠폰이 제대로 적용됩니다.", () => {
+      const { result } = renderHook(() =>
+        useDiscountCalculator(mockCarts, mockCoupons[0])
+      );
+
+      expect(result.current.totalBeforeDiscount).toBe(50000);
+      expect(result.current.totalAfterDiscount).toBe(45000);
+      expect(result.current.totalDiscount).toBe(5000);
+    });
   });
 
   describe("useLocalStorage", () => {
